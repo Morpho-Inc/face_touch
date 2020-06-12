@@ -1,0 +1,260 @@
+:root {
+    --morpho-color-main: #006db2;
+    --morpho-color-sub: #94c4e2;
+    --base-font: 'Open Sans Condensed', sans-serif;
+    --base-font-color: black;
+    --base-shadow-color: white;
+    --base-background-color: rgb(236, 236, 236);
+}
+
+body, html {
+    height: 100%;
+    background-color: var(--base-background-color);
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow: hidden;
+}
+
+p {
+    font-family: var(--base-font);
+    color: var(--base-font-color);
+}
+
+button {
+    background-color: Transparent;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+}
+
+.action-button-container {
+    position: fixed;
+    width: 100%;
+    height: 27vmin;
+    bottom: 2%;
+    text-align: center;
+}
+
+.action-button{
+    width: 20vmin;
+}
+
+.action-button img {
+    width: 80%;
+}
+
+.action-button p {
+    width: 100%;
+    font-family: var(--base-font);
+    color: var(--base-font-color);
+    font-size: 7vmin;
+}
+
+#main-page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+
+.message-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+.message-container.main {
+    bottom: 50vh;
+}
+
+.message-container.reward {
+    top: 5vh;
+    bottom: 0;
+    height: 100%;
+}
+
+.message-container.game {
+    top: 20vh;
+}
+
+.message-container.loading {
+    bottom: 50vh;
+}
+
+
+#dont-touch {
+    font-size: 7vmin;
+    line-height: 0;
+}
+
+#challenge-time {
+    font-size: 18vmin;
+    line-height: 18vmin;
+}
+
+#rewards-container {
+    position: fixed;
+    right: 4%;
+    bottom: 2%;
+}
+
+#rewards-container p {
+    color: var(--base-font-color);
+    font-size: 5vmin;
+    font-family: var(--base-font);
+}
+
+#settings-container {
+    position: fixed;
+    left: 4%;
+    bottom: 2%;
+}
+
+#settings-container p {
+    color: var(--base-font-color);
+    font-size: 5vmin;
+    font-family: var(--base-font);
+}
+
+#game-page {
+    position: fixed;
+    width: 100vw;
+    height: 100%;
+    text-align: center;
+    top: 0;
+}
+
+#video {
+    position: absolute; 
+    left: 0;
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover;
+
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+}
+
+#debug-canvas {
+    position: absolute; 
+    left: 0;
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover;
+
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+}
+
+
+#debug-message {
+    font-size: 7vmin;
+    color: white;
+    text-shadow: 2px 2px 0px black;
+}
+
+#alert-message-gyro {
+    position: fixed; 
+    width: 100%;
+    font-size: 6vmin;
+    color: white;
+    text-shadow: 2px 2px 0px black;
+}
+
+#dont-touch-light {
+    font-size: 7vmin;
+    color: white;
+    text-shadow: 2px 2px 0px black;
+}
+
+#countdown-timer {
+    font-size: 15vmin;
+    color: white;
+    text-shadow: 4px 4px 0px black;
+    font-family: 'Courier Prime', monospace;
+}
+#alert-message-face {
+    font-size: 8vmin;
+    color: yellow;
+    text-shadow: 2px 2px 0px black;
+}
+
+#reward-page {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--base-background-color);
+}
+
+#message-reward {
+    font-size: 8vh;
+    line-height: 4vh;
+    color: black;
+}
+
+#reward-img {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    max-height: 45vh;
+}
+
+
+#reward-body  {
+    position: static;
+    width: 100%;
+    top: 0;
+    display: flex;
+    flex-wrap:wrap; 
+    justify-content: center; 
+}
+
+#reward-body .reward {
+    font-size: 4vmin;
+    width: 100px;
+    height: 140px;
+    vertical-align: top;
+    margin: 2px;
+    text-align: center;
+    overflow: hidden;
+}
+
+#reward-body .level {
+    color: var(--base-font-color);
+    font-size: 24px;
+    font-family: var(--base-font);
+}
+
+#reward-body .time {
+    color: var(--base-font-color);
+    font-size: 18px;
+    font-family: var(--base-font);
+}
+
+#reward-body img {
+    height: 60%;
+    width: auto;
+}
+
+#loading-page {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    background-color: var(--base-background-color);
+}
+
+#message-loading {
+    font-size: 8vmin;
+    color: black;
+}

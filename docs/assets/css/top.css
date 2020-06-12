@@ -1,0 +1,80 @@
+:root {
+    --morpho-color-main: #006db2;
+    --morpho-color-sub: #94c4e2;
+    --base-font: 'Open Sans Condensed', sans-serif;
+    --base-font-color: white;
+    --base-shadow-color: black;
+    --base-background-color: rgb(236, 236, 236);
+}
+
+body, html {
+    height: 100%;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("../images/young-troubled-woman-using-laptop-at-home-3755755-resize.jpg");
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow: hidden;
+}
+
+.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
+    background-color: var(--morpho-color-main) !important;
+    border-color: var(--morpho-color-main) !important;
+}
+
+.container {
+    text-align: center;
+}
+
+.sub-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 45vh;
+}
+
+h1 {
+    font-family: var(--base-font);
+    font-size: 16vmin !important;
+    color: var(--base-font-color);
+}
+
+h2 {
+    font-family: var(--base-font);
+    font-size: 10vmin !important;
+    color: var(--base-font-color);
+}
+
+.container p {
+    font-family: var(--base-font);
+    color: var(--base-font-color);
+}
+
+#sub {
+    color: white;
+    font-size: 4vmin;
+    font-weight: 300;
+}
+
+#lead {
+    color: white;
+    font-size: 4vmin;
+    font-weight: 300;
+}
+
+footer {
+    position: absolute;
+    bottom:0;
+    font-size: 0.8rem;
+}
+
+.footer-body{
+    position: absolute;
+    bottom:0;
+}
+
+.footer-body.right{
+    right: 10px;
+}

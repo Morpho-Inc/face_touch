@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Demo app for face touch">
+  <meta name="author" content="Shun Hirai">
+  <link rel="icon" href="assets/images/favicon.ico">
+
+  <title>Don't touch your face challenge</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+  <link href="assets/css/navbar.css" rel="stylesheet" type="text/css">
+  <link href="assets/css/game.css" rel="stylesheet" type="text/css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:wght@300&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+
+  <!-- <script defer src="assets/lib/body-pix.min.js"></script> -->
+  <script src="assets/lib/screenfull.min.js"></script>
+
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-md navbar-fixed-top navbar-light bg-transparent mb-0">
+    <a class="navbar-brand-light" href="index.html"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+      aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</span></a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Challenge</a>
+        </li>
+        <li class="nav-item ">
+          <a class="nav-link" href="how_it_works.html">How it works</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Page -->
+  <div id="main-page">
+    <div class="message-container main">
+      <p id="dont-touch">Don't touch your face for</p>
+      <p id="challenge-time"></p>
+    </div>
+    <div class="action-button-container">
+      <button class="action-button" id="button-play" onclick="startChallenge()">
+        <img src="assets/images/play-button.svg">
+        <p>Play</p>
+      </button>
+    </div>
+    <div id="rewards-container">
+      <button id="button-rewards" data-toggle="modal" data-target="#rewardsModal">
+        <p> Show Rewards </p>
+      </button>
+    </div>
+
+    <div id="settings-container">
+      <button id="button-settings" data-toggle="modal" data-target="#settingsModal">
+        <p> Settings </p>
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Page -->
+  <div id="game-page" style="display:none">
+    <video id="video" playsinline></video>
+    <canvas id="debug-canvas"></canvas>
+    <p id="alert-message-gyro"></p>
+    <div class="message-container game">
+      <p id="dont-touch-light">Don't touch your face</p>
+      <p id="countdown-timer"></p>
+      <p id="alert-message-face"></p>
+      <p id="debug-message"></p>
+    </div>
+
+    <div class="action-button-container">
+      <button class="action-button" id="button-stop" onclick="challengeFinished('stop')">
+        <img src="assets/images/stop.svg">
+        <p style="color: white;">Stop</p>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading Page -->
+  <div id="loading-page" style="display:none">
+    <div class="message-container loading">
+      <p id="message-loading">Loading...</p>
+    </div>
+  </div>
+
+    <!-- Reward Page -->
+    <div id="reward-page" style="display:none">
+      <div class="message-container reward">
+        <p id="message-reward"></p>
+        <img id="reward-img">
+      </div>
+      <div class="action-button-container">
+        <button class="action-button" id="button-next" onclick="initializeScreen()">
+          <img src="assets/images/fast-forward-button.svg">
+          <p>Next</p>
+        </button>
+      </div>
+    </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="rewardsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Rewards</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="reward-body">
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning mr-auto" id="button-reset" onclick="resetLevel()">Reset
+            Levels</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Settings</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="videoSource">Select Camera</label>
+              <select class="form-control" id="videoSource" onChange="onVideoSourceChange()"></select>
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="playSound" checked>
+              <label class="form-check-label" for="playSound">Play sound</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap core JavaScript
+    ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+    integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
+    crossorigin="anonymous"></script>
+  <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+    integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+
+  <script src="assets/js/game.js"></script>
+
+</body>
+
+</html>
