@@ -16,7 +16,7 @@ Don't touch your face for specific time, then you can earn rewards.
 
 We use the [BodyPix](https://github.com/tensorflow/tfjs-models/tree/master/body-pix) for body parts segmentation.
 
-![How it works](docs/assets/images/demo.gif)
+![How it works](docs/assets/images/howitworks.gif)
 
 # Author
  
