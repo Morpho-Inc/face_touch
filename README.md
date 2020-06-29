@@ -9,7 +9,7 @@ Don't touch your face for specific time, then you can earn rewards.
 
 ![Demo](docs/assets/images/game_play.gif)
 
-### [You can play the game here](https://github.morpho.local/pages/s-hirai/face_touch/)
+### [You can play the game here](https://morphoinc.github.io/face_touch/)
 
 
 # How it works
