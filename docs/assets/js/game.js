@@ -26,12 +26,18 @@ const challenges = [
 ];
 
 const sounds = {
-    start: new Audio("assets/audio/131660__bertrof__game-sound-correct.mp3"),
-    stop: new Audio("assets/audio/519985__abdrtar__recording-start.mp3"),
+    start: new Audio("assets/audio/start.mp3"),
+    stop: new Audio("assets/audio/stop.mp3"),
     tick: new Audio("assets/audio/tick.mp3"),
     cleared: new Audio("assets/audio/success.mp3"),
-    completed: new Audio("assets/audio/466133__humanoide9000__victory-fanfare.mp3"),
-    failed: new Audio("assets/audio/dame_sana.mp3"),
+    completed: new Audio("assets/audio/completed.mp3"),
+    failed: new Audio("assets/audio/dame.mp3"),
+}
+
+function loadSounds() {
+    for (let key in sounds) {
+        sounds[key].load();
+    }
 }
 
 function playSound(s) {
@@ -257,23 +263,27 @@ function startTick() {
     let timeRemain = timeLimit;
 
     function tick() {
-        if (state.faceExists) {
+        if (!state.faceExists) {
+            document.getElementById("alert-message-face").innerText = "No Face";
+        }
+
+        if (state.faceExists && !document.hidden) {
             document.getElementById("alert-message-face").innerText = "";
+
+            const elapsed = parseInt((new Date().getTime() - startDate.getTime()) / 1000);
+            timeRemain = timeLimit - elapsed;
+
+            const timeString = getTimeString(timeRemain, true);
+            document.getElementById('countdown-timer').innerText = timeString;
+
+            if (timeRemain <= 0) {
+                challengeFinished("success");
+            } else {
+                playSound(sounds.tick);
+            }
         } else {
             startDate = new Date();
             timeLimit = timeRemain;
-            document.getElementById("alert-message-face").innerText = "No Face";
-        }
-        const elapsed = parseInt((new Date().getTime() - startDate.getTime()) / 1000);
-        timeRemain = timeLimit - elapsed;
-
-        const timeString = getTimeString(timeRemain, true);
-        document.getElementById('countdown-timer').innerText = timeString;
-
-        if (timeRemain <= 0) {
-            challengeFinished("success");
-        } else {
-            playSound(sounds.tick);
         }
     }
 
@@ -327,8 +337,8 @@ async function startSegmentation() {
     async function segmentation() {
         let touched = false;
         if (state.video.readyState === 4) {
-            if (state.deviceShaking) {
-                console.log("skipping");
+            if (document.hidden) {
+                // skip inference when tab is inactive
             } else {
                 const segmentation = await net.segmentPersonParts(state.video, {
                     flipHorizontal: false,
@@ -337,10 +347,14 @@ async function startSegmentation() {
                 });
                 [touched, state.faceExists] = checkTouch(segmentation);
 
+                if (state.deviceShaking) {
+                    touched = false; // avoid false detection
+                }
+
                 if (!initialized) {
                     if (null != state.gyroscope) {
                         state.gyroscope.start();
-                    }     
+                    }
                     document.getElementById('loading-page').style.display = "none";
                     startTick();
                     initialized = true;
@@ -372,14 +386,21 @@ function initializeScreen() {
     document.getElementById('game-page').style.display = "none";
     document.getElementById("loading-page").style.display = "none";
 
+    document.getElementById("alert-message-gyro").innerText = "";
+
     const level = parseInt(localStorage.getItem("level") || "0");
     updateChallengeTime(level);
 }
 
 async function startChallenge() {
     document.getElementById("loading-page").style.display = "block";
+    loadSounds();
     playSound(sounds.start);
-    await loadVideo();
+    try {
+        await loadVideo();
+    } catch(err){
+        challengeFinished("stop");
+    }
 }
 
 function challengeFinished(status) {
