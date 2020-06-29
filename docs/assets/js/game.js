@@ -446,7 +446,7 @@ function challengeFinished(status) {
 
 async function main() {
     initializeScreen();
-
+    navigator.mediaDevices.getUserMedia({ audio: false, video: true });
     const cameras = await getVideoInputs();
     setupGui(cameras);
     loadGyroscope();
