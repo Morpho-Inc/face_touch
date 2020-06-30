@@ -46,6 +46,7 @@ function playSound(s) {
     }
 }
 
+// Obtain the list of video input devices
 async function getVideoInputs() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
         console.log('enumerateDevices() not supported.');
@@ -68,12 +69,19 @@ function stopExistingVideoCapture() {
 }
 
 async function getDeviceIdForLabel(cameraLabel) {
-    const videoInputs = await getVideoInputs();
+    let videoInputs = localStorage.getItem("videoInputs");
 
-    for (let i = 0; i < videoInputs.length; i++) {
-        const videoInput = videoInputs[i];
-        if (videoInput.label === cameraLabel) {
-            return videoInput.deviceId;
+    if (videoInputs) {
+        try {
+            videoInputs = JSON.parse(videoInputs);
+            for (let i = 0; i < videoInputs.length; i++) {
+                const videoInput = videoInputs[i];
+                if (videoInput.label === cameraLabel) {
+                    return videoInput.deviceId;
+                }
+            }
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -82,66 +90,99 @@ async function getDeviceIdForLabel(cameraLabel) {
 
 async function getConstraints(cameraLabel) {
     let constraints = true;
-
+    let id = true;
     if (cameraLabel) {
-        let id = await getDeviceIdForLabel(cameraLabel);
-        let currentFacingMode = 'environment';
-        constraints = {
-            width: { ideal: 640 },
-            height: { ideal: 320 },
-            deviceId: { ideal: id },
-            facingMode: currentFacingMode,
-        };
+        id = await getDeviceIdForLabel(cameraLabel);
+    }
+    constraints = {
+        width: { ideal: 640 },
+        height: { ideal: 320 },
+        deviceId: { ideal: id },
+        //facingMode: 'environment',
     };
+
     return constraints;
 }
 
-async function setupCamera(cameraLabel) {
+async function loadVideo() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error(
             'Browser API navigator.mediaDevices.getUserMedia not available');
     }
-
     const videoElement = document.getElementById('video');
 
-    stopExistingVideoCapture();
-
+    const cameraLabel = localStorage.getItem("cameraLabel");
     const constraints = await getConstraints(cameraLabel);
-    const stream = await navigator.mediaDevices.getUserMedia(
-        { audio: false, video: constraints });
-    videoElement.srcObject = stream;
 
-    return new Promise((resolve) => {
-        videoElement.onloadedmetadata = () => {
+    try {
+        // Open camera device with specified width, height and deviceId
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: constraints });
+        videoElement.srcObject = stream;
+
+        videoInputs = await getVideoInputs();
+
+        // Update camera device list in localStorage
+        localStorage.setItem("videoInputs", JSON.stringify(videoInputs));
+
+        // In case user selected different camera device, store new label at localStorage
+        stream.getVideoTracks().forEach(track => {
+            if (track.readyState == 'live') {
+                localStorage.setItem("cameraLabel", track.label);
+            }
+        });
+
+        updateVideoSources(videoInputs);
+
+        state.video = await waitForVideo(videoElement);
+
+    } catch (e) {
+        alert('Camera open error. Try using another browser.');
+        throw e;
+    }
+}
+
+function waitForVideo(videoElement) {
+    return new Promise(function (resolve) {
+        videoElement.oncanplay = () => {
             videoElement.width = videoElement.videoWidth;
             videoElement.height = videoElement.videoHeight;
 
+            document.getElementById('game-page').style.display = "block";
+            videoElement.play();
+            startSegmentation();
             resolve(videoElement);
         };
     });
 }
 
-async function loadVideo() {
-    const cameraLabel = localStorage.getItem("cameraLabel");
-    try {
-        state.video = await setupCamera(cameraLabel);
-
-        document.getElementById('game-page').style.display = "block";
-
-        startSegmentation();
-    } catch (e) {
-        let info = 'this browser does not support video capture,' +
-            'or this device does not have a camera';
-        alert(info)
-        throw e;
+function updateVideoSources(videoInputs) {
+    // Clear camera selection menu
+    const cameraSelection = document.getElementById("videoSource");
+    while (cameraSelection.firstChild) {
+        cameraSelection.removeChild(cameraSelection.lastChild);
     }
 
-    state.video.play();
+    // Add labels for camera selection menu
+    videoInputs.forEach(camera => {
+        const option = document.createElement('option');
+        option.text = camera.label;
+        option.value = camera.deviceId;
+
+        if (localStorage.getItem("cameraLabel") == option.text) {
+            option.selected = true;
+        }
+
+        cameraSelection.appendChild(option);
+    });
 }
 
 function onVideoSourceChange() {
-    const cameraLabel = document.getElementById("videoSource").value;
-    localStorage.setItem("cameraLabel", cameraLabel);
+    const videoSource = document.getElementById("videoSource");
+    const index = videoSource.selectedIndex;
+    const value = videoSource.options[index].value;
+    const text = videoSource.options[index].text;
+
+    localStorage.setItem("cameraLabel", text);
 }
 
 function loadGyroscope() {
@@ -168,17 +209,17 @@ function loadGyroscope() {
     }
 }
 
-function setupGui(cameras) {
-    cameras.forEach(camera => {
-        const option = document.createElement('option');
-        option.text = camera.label;
-        option.value = camera.label;
+function setupGui() {
+    let videoInputs = localStorage.getItem("videoInputs");
 
-        if (localStorage.getItem("cameraLabel") == option.value) {
-            option.selected = true;
+    if (videoInputs) {
+        try {
+            videoInputs = JSON.parse(videoInputs);
+            updateVideoSources(videoInputs);
+        } catch (error) {
+            console.log(error);
         }
-        document.getElementById("videoSource").appendChild(option);
-    });
+    }
 
     const checkBox = document.getElementById("playSound");
     checkBox.checked = parseInt(localStorage.getItem("playSound") || 1);
@@ -398,7 +439,7 @@ async function startChallenge() {
     playSound(sounds.start);
     try {
         await loadVideo();
-    } catch(err){
+    } catch (err) {
         challengeFinished("stop");
     }
 }
@@ -446,9 +487,7 @@ function challengeFinished(status) {
 
 async function main() {
     initializeScreen();
-    await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
-    const cameras = await getVideoInputs();
-    setupGui(cameras);
+    setupGui();
     loadGyroscope();
 }
 
